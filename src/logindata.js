@@ -18,7 +18,7 @@ export default class LoginData extends React.Component{
             </div>
         :
         <div>
-            <h1>You have successfully registered click below to login!!!</h1> 
+            <h3>You have successfully registered click below to login!!!</h3> 
             <button onClick = {this.props.handlerRedirect}>Login</button>   
         </div>
         }

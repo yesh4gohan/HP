@@ -30,7 +30,7 @@ export default class Pics extends React.Component{
         this.rememberPage = this.rememberPage.bind(this);
     }
     componentDidMount(){
-        debugger
+        //debugger
         axios.get(URL)
         .then(
         
@@ -157,8 +157,8 @@ export default class Pics extends React.Component{
                      {!this.state.clicked?
                     <div>
                         <input refs = "ref1" value = {this.state.searchterm} placeholder = "search" tpye ="text" onChange ={this.updateSearch}/>
-                       {this.state.changeFlag?
-                       (this.state.suggestions.length?
+                       {this.state.suggestions.length?
+                       (this.state.changeFlag?
                         <ul>
                             {this.state.suggestions.map((suggestion,key)=>{return(
                                 <li key = {key}><a href = "#" onClick = {()=>{this.searchFunction(suggestion.name.first)}}>
@@ -167,7 +167,7 @@ export default class Pics extends React.Component{
                             )}
                         )}
                         </ul>:
-                        <div>Sorry try again</div>):""}
+                       <div>Sod try again</div> ):""}
                     </div>
                     :<button onClick = {this.backToPage}>Back to List</button>}
                     {this.state.clicked?(this.state.search_success?<div><img src= {this.state.searched_img}/></div>:<div></div>):""}
@@ -185,3 +185,4 @@ export default class Pics extends React.Component{
         );
     }
 }
+// 
