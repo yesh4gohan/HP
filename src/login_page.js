@@ -1,16 +1,32 @@
 import React from "react";
 import axios from "axios";
 import LoginData from "./logindata";
+import {Redirect} from "react-router-dom";
+import {connect} from "react-redux";
+import {bindActionCreators} from "redux";
+import {login,logout} from "./action";
 const URL = 'http://localhost:3000/register';
 
-export default class LoginPage extends React.Component{
+const mapStateToProps = state=>{
+    return {
+        logged_in:state.loggedin
+    }
+}
+const mapDispatchToprops = dispatch=>{
+    return bindActionCreators({
+        login,
+        logout
+    },dispatch)     
+}
+
+class LoginPage extends React.Component{
     constructor(){
         super();
         this.validateLoginDtails = this.validateLoginDtails.bind(this);
         this.setUserId = this.setUserId.bind(this);
         this.setPassword = this.setPassword.bind(this);
         this.handleNavigate = this.handleNavigate.bind(this);
-        this.state = {entered_id:"",entered_pass:"",actual_values:[],logged_in:false}
+        this.state = {entered_id:"",entered_pass:"",actual_values:[]}
     }
     componentDidMount(){
         axios.get(URL)
@@ -37,12 +53,13 @@ export default class LoginPage extends React.Component{
             }    
          })
          if(!flag){
+             this.props.logout();
              document.getElementById("test").innerHTML="wrong credentilas retry";
                 setTimeout(()=>{document.getElementById("test").innerHTML="";},2000);
          }
          else{
 
-             this.setState({logged_in:true});
+             this.props.login();
          }
           this.setDefault();
     }
@@ -50,12 +67,14 @@ export default class LoginPage extends React.Component{
         this.setState({entered_id:"",entered_pass:""});
     }
     handleNavigate(){
-    if(this.state.logged_in)
+    if(this.props.logged_in){
+
     this.props.history.push('/App');
+    }
     }
     render(){
         return(
-            <div>{!this.state.logged_in?
+            <div>{!this.props.logged_in?
             <div>
                 <div><input type ="text" placeholder ="enter user_id" onChange ={this.setUserId} value = {this.state.entered_id}/></div>
                 <div><input type ="password" placeholder ="enter password" onChange ={this.setPassword} value = {this.state.entered_pass}/></div>
@@ -70,3 +89,4 @@ export default class LoginPage extends React.Component{
         );
     }
 }
+export default connect(mapStateToProps,mapDispatchToprops)(LoginPage);

@@ -5,7 +5,27 @@ const URL = "http://localhost:3000/random_users";
 import ModalBox from "./modalBox";
 import {Col,Row} from "react-bootstrap";
 import Pagination from "./pagination";
-export default class Pics extends React.Component{
+import {bindActionCreators} from "redux";
+import {updatePage,setLoader,unsetLoader} from "./action";
+import {connect} from "react-redux";
+import Loader from './loader';
+
+const mapStateToProps = state=>{
+    console.log(state)
+    if(!(state.currentPage)){
+        return {currentPage:1}
+    }
+    return{currentPage:state.currentPage,
+            loaderState:state.loader}
+}
+const mapDispatchToProps = dispatch=>{
+    return bindActionCreators({
+        updatePage,
+        setLoader,
+        unsetLoader
+    },dispatch)
+}
+class Pics extends React.Component{
     constructor(){
         super();
         this.state = {details:[],
@@ -24,13 +44,14 @@ export default class Pics extends React.Component{
         this.searchFunction = this.searchFunction.bind(this);
         this.updateSearch = this.updateSearch.bind(this);
         //this.showDetails = this.showDetails.bind(this);
+        this.updateCurrentPage = this.updateCurrentPage.bind(this);
         this.modalData = this.modalData.bind(this);
         this.toggle = this.toggle.bind(this);
         this.backToPage = this.backToPage.bind(this);
-        this.rememberPage = this.rememberPage.bind(this);
+        
     }
     componentDidMount(){
-        //debugger
+        this.props.setLoader();
         axios.get(URL)
         .then(
         
@@ -41,7 +62,8 @@ export default class Pics extends React.Component{
             let filteredData = details.filter((detail)=> detail != undefined);
             //console.log(filteredData);
                 
-                this.setState({details:filteredData});  
+                this.setState({details:filteredData,search_success:true});  
+                this.props.unsetLoader();
             }).then(
                 ()=>{
                     this.setState({pictures:this.state.details.map((detail,index)=>{
@@ -51,12 +73,26 @@ export default class Pics extends React.Component{
                             <Col  md = {4}>
                             <img src = {detail.picture.large}/></Col>
                             <Col md = {4}><h5><a href = "#" onClick = {()=>{this.modalData(detail)}}>{detail.name.first}  {detail.name.last}</a></h5></Col>
-                            </Row>    
+                            </Row>   
                         );
                     })
                 })
-            })
-        
+            }
+            // ()=>{
+            //         this.setState({pictures:this.state.details.map((detail,index)=>{
+            //             return(
+                            
+            //                 <Row key = {index}>
+            //                 <Col  md = {4}>
+            //                 {"hi"}</Col>
+            //                 <Col md = {4}><h5><a href = "#" onClick = {()=>{this.modalData(detail)}}>{detail.name.first}  {detail.name.last}</a></h5></Col>
+            //                 </Row>   
+            //             );
+            //         })
+            //     })
+            // }
+            )
+
     }
     filterData(result){
         let flag = true;
@@ -75,9 +111,7 @@ export default class Pics extends React.Component{
     backToPage(){
         this.setState({clicked:false});
     }
-    rememberPage(value){
-    this.setState({currentPage:value});
-    }
+  
     searchFunction(name){
         //e.preventDefault();
         this.setState({clicked:true});
@@ -147,9 +181,15 @@ export default class Pics extends React.Component{
     }
     toggle()
     {this.setState({isOpen:!this.state.isOpen,background:!this.state.background})};
-    
+
+    updateCurrentPage(page_no){
+    this.props.updatePage(page_no);
+    }
     render(){
-        console.log(this.state.search_success);
+        if(this.props.loaderState){
+            return <Loader/>
+        }
+        //console.log(this.state.search_success);
         return(<div>
                 {this.state.background?
                  <div >
@@ -157,8 +197,8 @@ export default class Pics extends React.Component{
                      {!this.state.clicked?
                     <div>
                         <input refs = "ref1" value = {this.state.searchterm} placeholder = "search" tpye ="text" onChange ={this.updateSearch}/>
-                       {this.state.suggestions.length?
-                       (this.state.changeFlag?
+                       {this.state.changeFlag?
+                       (this.state.suggestions.length?
                         <ul>
                             {this.state.suggestions.map((suggestion,key)=>{return(
                                 <li key = {key}><a href = "#" onClick = {()=>{this.searchFunction(suggestion.name.first)}}>
@@ -167,7 +207,7 @@ export default class Pics extends React.Component{
                             )}
                         )}
                         </ul>:
-                       <div>Sod try again</div> ):""}
+                        <div>Sorry try again</div>):""}
                     </div>
                     :<button onClick = {this.backToPage}>Back to List</button>}
                     {this.state.clicked?(this.state.search_success?<div><img src= {this.state.searched_img}/></div>:<div></div>):""}
@@ -175,7 +215,7 @@ export default class Pics extends React.Component{
                     <div>
                         <h1>Enjoy entire List</h1>
                         
-                               <Pagination todos = {this.state.pictures} rememberPage = {this.rememberPage} currentPage = {this.state.currentPage}/>
+                               <Pagination todos = {this.state.pictures}  currentPage = {this.props.currentPage} updateCurrentPage = {this.updateCurrentPage}/>
                                    
                     </div>:""}
                     
@@ -185,4 +225,4 @@ export default class Pics extends React.Component{
         );
     }
 }
-// 
+export default connect(mapStateToProps,mapDispatchToProps)(Pics);
