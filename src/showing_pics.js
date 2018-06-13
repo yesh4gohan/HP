@@ -12,11 +12,17 @@ import Loader from './loader';
 
 const mapStateToProps = state=>{
     console.log(state)
-    if(!(state.currentPage)){
-        return {currentPage:1}
+    let loaderState = false;
+    let currentPage = parseInt(1);
+    if(state.hasOwnProperty('loader')){
+            loaderState = state.loader; 
     }
-    return{currentPage:state.currentPage,
-            loaderState:state.loader}
+    if(state.hasOwnProperty('currentPage')){
+            currentPage = state.currentPage;
+    }
+    return{currentPage,
+            loaderState
+    }
 }
 const mapDispatchToProps = dispatch=>{
     return bindActionCreators({
@@ -39,7 +45,7 @@ class Pics extends React.Component{
             isOpen:false,
             currentPage:1,
             suggestions:[],
-            changeFlag:false
+            changeFlag:false,
             };
         this.searchFunction = this.searchFunction.bind(this);
         this.updateSearch = this.updateSearch.bind(this);
@@ -52,6 +58,14 @@ class Pics extends React.Component{
     }
     componentDidMount(){
         this.props.setLoader();
+        // this.setState({loaderLocal:this.props.loaderState});
+        //console.log(this.state.loaderLocal)
+
+         setTimeout(()=>{this.props.unsetLoader();
+                        //this.setState({loaderLocal:this.props.loaderState});
+                        //console.log(this.state.loaderLocal);
+            },2000);
+        //console.log(this.state.loaderLocal);
         axios.get(URL)
         .then(
         
@@ -63,7 +77,7 @@ class Pics extends React.Component{
             //console.log(filteredData);
                 
                 this.setState({details:filteredData,search_success:true});  
-                this.props.unsetLoader();
+                // this.props.unsetLoader();
             }).then(
                 ()=>{
                     this.setState({pictures:this.state.details.map((detail,index)=>{
@@ -92,7 +106,7 @@ class Pics extends React.Component{
             //     })
             // }
             )
-
+       
     }
     filterData(result){
         let flag = true;
@@ -186,6 +200,7 @@ class Pics extends React.Component{
     this.props.updatePage(page_no);
     }
     render(){
+        console.log(this.props.loaderState);
         if(this.props.loaderState){
             return <Loader/>
         }

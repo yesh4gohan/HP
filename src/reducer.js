@@ -1,4 +1,8 @@
-const initialState = {loggedin:false};
+const initialState = {
+                    loggedin:false,
+                    currentPage:1,
+                    loader:false     
+                };
 export const reducer = function(state = initialState,action){
     
     switch(action.type){

@@ -76,6 +76,7 @@ export default class Pagination extends React.Component {
           if(mid <= 3){
             first = 1;
             last = (mid + 2);
+            
           }
           else{
           first = (mid - 2);
